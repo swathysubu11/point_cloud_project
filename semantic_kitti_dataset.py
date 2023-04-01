@@ -10,7 +10,7 @@ import torch
 class SemanticKITTI(torch_data.Dataset):
     def __init__(self, mode, test_id=None):
         self.name = 'SemanticKITTI'
-        self.dataset_path = '/data/WQ/DataSet/semantic-kitti/dataset/sequences_0.06'
+        self.dataset_path = '/home/swathy/Documents/project/point_cloud/qiqi/RandLA-Net-pytorch/data/sequences_0.06'
         self.label_to_names = {0: 'unlabeled',
                                1: 'car',
                                2: 'bicycle',
@@ -104,6 +104,7 @@ class SemanticKITTI(torch_data.Dataset):
         return selected_pc.astype(np.float32), selected_labels.astype(np.int32), selected_idx.astype(np.int32), np.array([cloud_ind], dtype=np.int32)
 
     def get_data(self, file_path):
+       # print(file_path,'filepath')
         seq_id = file_path.split('/')[-3]
         frame_id = file_path.split('/')[-1][:-4]
         kd_tree_path = join(self.dataset_path, seq_id, 'KDTree', frame_id + '.pkl')

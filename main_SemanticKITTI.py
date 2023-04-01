@@ -39,15 +39,15 @@ def my_worker_init_fn(worker_id):
 TRAIN_DATASET = SemanticKITTI('training')
 TEST_DATASET = SemanticKITTI('validation')
 print(len(TRAIN_DATASET), len(TEST_DATASET))
-TRAIN_DATALOADER = DataLoader(TRAIN_DATASET, batch_size=FLAGS.batch_size, shuffle=True, num_workers=20, worker_init_fn=my_worker_init_fn, collate_fn=TRAIN_DATASET.collate_fn)
-TEST_DATALOADER = DataLoader(TEST_DATASET, batch_size=FLAGS.batch_size, shuffle=True, num_workers=20, worker_init_fn=my_worker_init_fn, collate_fn=TEST_DATASET.collate_fn)
+TRAIN_DATALOADER = DataLoader(TRAIN_DATASET, batch_size=FLAGS.batch_size, shuffle=True, num_workers=5, worker_init_fn=my_worker_init_fn, collate_fn=TRAIN_DATASET.collate_fn)
+TEST_DATALOADER = DataLoader(TEST_DATASET, batch_size=FLAGS.batch_size, shuffle=True, num_workers=5, worker_init_fn=my_worker_init_fn, collate_fn=TEST_DATASET.collate_fn)
 
 print(len(TRAIN_DATALOADER), len(TEST_DATALOADER))
 
 
 #################################################   network   #################################################
 
-device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+device = torch.device('cpu')
 
 net = Network(cfg)
 net.to(device)
