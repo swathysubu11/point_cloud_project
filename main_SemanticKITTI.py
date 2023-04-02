@@ -39,15 +39,15 @@ def my_worker_init_fn(worker_id):
 TRAIN_DATASET = SemanticKITTI('training')
 TEST_DATASET = SemanticKITTI('validation')
 print(len(TRAIN_DATASET), len(TEST_DATASET))
-TRAIN_DATALOADER = DataLoader(TRAIN_DATASET, batch_size=FLAGS.batch_size, shuffle=True, num_workers=5, worker_init_fn=my_worker_init_fn, collate_fn=TRAIN_DATASET.collate_fn)
-TEST_DATALOADER = DataLoader(TEST_DATASET, batch_size=FLAGS.batch_size, shuffle=True, num_workers=5, worker_init_fn=my_worker_init_fn, collate_fn=TEST_DATASET.collate_fn)
+TRAIN_DATALOADER = DataLoader(TRAIN_DATASET, batch_size=FLAGS.batch_size, shuffle=True, num_workers=0, worker_init_fn=my_worker_init_fn, collate_fn=TRAIN_DATASET.collate_fn)
+TEST_DATALOADER = DataLoader(TEST_DATASET, batch_size=FLAGS.batch_size, shuffle=True, num_workers=0, worker_init_fn=my_worker_init_fn, collate_fn=TEST_DATASET.collate_fn)
 
 print(len(TRAIN_DATALOADER), len(TEST_DATALOADER))
 
 
 #################################################   network   #################################################
 
-device = torch.device('cpu')
+device = torch.device("cuda:0" if torch.cuda.is_available() else 'cpu')
 
 net = Network(cfg)
 net.to(device)
@@ -60,7 +60,7 @@ it = -1 # for the initialize value of `LambdaLR` and `BNMomentumScheduler`
 start_epoch = 0
 CHECKPOINT_PATH = FLAGS.checkpoint_path
 if CHECKPOINT_PATH is not None and os.path.isfile(CHECKPOINT_PATH):
-    checkpoint = torch.load(CHECKPOINT_PATH)
+    checkpoint = torch.load(CHECKPOINT_PATH, map_location=torch.device('cpu'))
     net.load_state_dict(checkpoint['model_state_dict'])
     optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
     start_epoch = checkpoint['epoch']
@@ -71,8 +71,6 @@ if torch.cuda.device_count() > 1:
     log_string("Let's use %d GPUs!" % (torch.cuda.device_count()))
     # dim = 0 [30, xxx] -> [10, ...], [10, ...], [10, ...] on 3 GPUs
     net = nn.DataParallel(net)
-
-
 
 
 #################################################   training functions   ###########################################

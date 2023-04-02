@@ -1,0 +1,135 @@
+-> loaded checkpoint output/checkpoint.tar (epoch: 61)
+**** EPOCH 061 ****
+2023-04-02 08:59:41.089967
+-> loaded checkpoint output/checkpoint.tar (epoch: 61)
+**** EPOCH 061 ****
+2023-04-02 09:01:56.420109
+-> loaded checkpoint output/checkpoint.tar (epoch: 61)
+**** EPOCH 061 ****
+2023-04-02 09:04:00.307281
+-> loaded checkpoint output/checkpoint.tar (epoch: 61)
+**** EPOCH 061 ****
+2023-04-02 09:05:00.870947
+-> loaded checkpoint output/checkpoint.tar (epoch: 61)
+**** EPOCH 061 ****
+2023-04-02 09:05:28.704431
+-> loaded checkpoint output/checkpoint.tar (epoch: 61)
+**** EPOCH 061 ****
+2023-04-02 09:05:48.632135
+-> loaded checkpoint output/checkpoint.tar (epoch: 61)
+**** EPOCH 061 ****
+2023-04-02 09:06:26.463610
+-> loaded checkpoint output/checkpoint.tar (epoch: 61)
+**** EPOCH 061 ****
+2023-04-02 09:06:58.845792
+-> loaded checkpoint output/checkpoint.tar (epoch: 61)
+**** EPOCH 061 ****
+2023-04-02 09:09:37.071948
+-> loaded checkpoint output/checkpoint.tar (epoch: 61)
+**** EPOCH 061 ****
+2023-04-02 09:10:00.143640
+-> loaded checkpoint output/checkpoint.tar (epoch: 61)
+**** EPOCH 061 ****
+2023-04-02 09:10:49.005951
+-> loaded checkpoint output/checkpoint.tar (epoch: 61)
+**** EPOCH 061 ****
+2023-04-02 09:11:14.320680
+-> loaded checkpoint output/checkpoint.tar (epoch: 61)
+**** EPOCH 061 ****
+2023-04-02 09:11:57.519532
+-> loaded checkpoint output/checkpoint.tar (epoch: 61)
+**** EPOCH 061 ****
+2023-04-02 09:12:10.594501
+-> loaded checkpoint output/checkpoint.tar (epoch: 61)
+**** EPOCH 061 ****
+2023-04-02 09:12:19.343157
+-> loaded checkpoint output/checkpoint.tar (epoch: 61)
+**** EPOCH 061 ****
+2023-04-02 09:12:25.793363
+-> loaded checkpoint output/checkpoint.tar (epoch: 61)
+**** EPOCH 061 ****
+2023-04-02 09:12:32.491989
+-> loaded checkpoint output/checkpoint.tar (epoch: 61)
+**** EPOCH 061 ****
+2023-04-02 09:13:34.078363
+-> loaded checkpoint output/checkpoint.tar (epoch: 61)
+**** EPOCH 061 ****
+2023-04-02 09:15:28.240590
+-> loaded checkpoint output/checkpoint.tar (epoch: 61)
+**** EPOCH 061 ****
+2023-04-02 09:15:53.511191
+-> loaded checkpoint output/checkpoint.tar (epoch: 61)
+**** EPOCH 061 ****
+2023-04-02 09:16:26.308770
+-> loaded checkpoint output/checkpoint.tar (epoch: 61)
+**** EPOCH 061 ****
+2023-04-02 09:16:51.669566
+-> loaded checkpoint output/checkpoint.tar (epoch: 61)
+**** EPOCH 061 ****
+2023-04-02 09:17:11.842282
+-> loaded checkpoint output/checkpoint.tar (epoch: 61)
+**** EPOCH 061 ****
+2023-04-02 09:17:42.764210
+-> loaded checkpoint output/checkpoint.tar (epoch: 61)
+**** EPOCH 061 ****
+2023-04-02 09:18:12.032520
+-> loaded checkpoint output/checkpoint.tar (epoch: 61)
+**** EPOCH 061 ****
+2023-04-02 09:18:37.411039
+-> loaded checkpoint output/checkpoint.tar (epoch: 61)
+**** EPOCH 061 ****
+2023-04-02 09:19:07.018615
+-> loaded checkpoint output/checkpoint.tar (epoch: 61)
+**** EPOCH 061 ****
+2023-04-02 09:19:47.949636
+-> loaded checkpoint output/checkpoint.tar (epoch: 61)
+**** EPOCH 061 ****
+2023-04-02 09:20:18.830055
+-> loaded checkpoint output/checkpoint.tar (epoch: 61)
+**** EPOCH 061 ****
+2023-04-02 09:20:42.875733
+-> loaded checkpoint output/checkpoint.tar (epoch: 61)
+**** EPOCH 061 ****
+2023-04-02 09:21:05.952316
+-> loaded checkpoint output/checkpoint.tar (epoch: 61)
+**** EPOCH 061 ****
+2023-04-02 09:21:28.087156
+-> loaded checkpoint output/checkpoint.tar (epoch: 61)
+**** EPOCH 061 ****
+2023-04-02 09:21:52.471853
+-> loaded checkpoint output/checkpoint.tar (epoch: 61)
+**** EPOCH 061 ****
+2023-04-02 09:22:16.539487
+-> loaded checkpoint output/checkpoint.tar (epoch: 61)
+**** EPOCH 061 ****
+2023-04-02 09:22:48.116741
+-> loaded checkpoint output/checkpoint.tar (epoch: 61)
+**** EPOCH 061 ****
+2023-04-02 09:23:15.841697
+-> loaded checkpoint output/checkpoint.tar (epoch: 61)
+**** EPOCH 061 ****
+2023-04-02 09:23:33.601410
+-> loaded checkpoint output/checkpoint.tar (epoch: 61)
+**** EPOCH 061 ****
+2023-04-02 09:23:53.125436
+-> loaded checkpoint output/checkpoint.tar (epoch: 61)
+**** EPOCH 061 ****
+2023-04-02 09:24:14.922197
+-> loaded checkpoint output/checkpoint.tar (epoch: 61)
+**** EPOCH 061 ****
+2023-04-02 09:24:40.233655
+-> loaded checkpoint output/checkpoint.tar (epoch: 61)
+**** EPOCH 061 ****
+2023-04-02 10:03:43.046079
+-> loaded checkpoint output/checkpoint.tar (epoch: 61)
+**** EPOCH 061 ****
+2023-04-02 10:04:33.580545
+-> loaded checkpoint output/checkpoint.tar (epoch: 61)
+**** EPOCH 061 ****
+2023-04-02 10:04:56.639295
+-> loaded checkpoint output/checkpoint.tar (epoch: 61)
+**** EPOCH 061 ****
+2023-04-02 10:05:14.531019
+-> loaded checkpoint output/checkpoint.tar (epoch: 61)
+**** EPOCH 061 ****
+2023-04-02 10:05:42.205263
