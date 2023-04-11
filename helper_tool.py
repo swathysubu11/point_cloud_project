@@ -18,9 +18,9 @@ import nearest_neighbors.lib.python.nearest_neighbors as nearest_neighbors
 class ConfigSemanticKITTI:
     k_n = 16  # KNN
     num_layers = 4  # Number of layers
-    num_points = 256 * 11  # Number of input points
+    num_points = 256   # Number of input points
     num_classes = 19  # Number of valid classes
-    sub_grid_size = 0.06  # preprocess_parameter
+    sub_grid_size = 0.85  # preprocess_parameter
 
     batch_size = 6  # batch_size during training
     val_batch_size = 20  # batch_size during validation and test
@@ -43,7 +43,7 @@ class ConfigSemanticKITTI:
 
 class ConfigS3DIS:
     k_n = 16  # KNN
-    num_layers = 5  # Number of layers
+    num_layers = 5  # Number of layers  
     num_points = 40960  # Number of input points
     num_classes = 13  # Number of valid classes
     sub_grid_size = 0.04  # preprocess_parameter
@@ -141,13 +141,13 @@ class DataProcessing:
             seq_path = join(dataset_path, seq_id)
             pc_path = join(seq_path, 'velodyne')
             
-            if seq_id == '05':
+            if seq_id == '03':
                 val_file_list.append([join(pc_path, f) for f in np.sort(os.listdir(pc_path))])
                 if seq_id == test_scan_num:
                     test_file_list.append([join(pc_path, f) for f in np.sort(os.listdir(pc_path))])
-            elif int(seq_id) >= 3 and seq_id == test_scan_num:
+            elif int(seq_id) > 3 and seq_id == test_scan_num:
                 test_file_list.append([join(pc_path, f) for f in np.sort(os.listdir(pc_path))])
-            elif seq_id in ['00', '01', '02']:
+            elif seq_id in ['01', '02']:
                 train_file_list.append([join(pc_path, f) for f in np.sort(os.listdir(pc_path))])
 
         train_file_list = np.concatenate(train_file_list, axis=0)

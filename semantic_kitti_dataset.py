@@ -113,7 +113,7 @@ class SemanticKITTI(torch_data.Dataset):
             search_tree = pickle.load(f)
         points = np.array(search_tree.data, copy=False)
         # Load labels
-        if int(seq_id) >= 11:
+        if int(seq_id) >= 2:
             labels = np.zeros(np.shape(points)[0], dtype=np.uint8)
         else:
             label_path = join(self.dataset_path, seq_id, 'labels', frame_id + '.npy')

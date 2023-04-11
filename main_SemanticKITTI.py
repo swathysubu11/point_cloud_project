@@ -47,9 +47,9 @@ print(len(TRAIN_DATALOADER), len(TEST_DATALOADER))
 
 #################################################   network   #################################################
 
-device = torch.device("cuda:0" if torch.cuda.is_available() else 'cpu')
+device = torch.device('cpu')
 
-net = Network(cfg)
+net = Network(cfg, device)
 net.to(device)
 
 # Load the Adam optimizer
@@ -66,12 +66,12 @@ if CHECKPOINT_PATH is not None and os.path.isfile(CHECKPOINT_PATH):
     start_epoch = checkpoint['epoch']
     log_string("-> loaded checkpoint %s (epoch: %d)"%(CHECKPOINT_PATH, start_epoch))
 
-
-if torch.cuda.device_count() > 1:
-    log_string("Let's use %d GPUs!" % (torch.cuda.device_count()))
+'''
+if torch.cpu.device_count() > 1:
+    log_string("Let's use %d GPUs!" % (torch.cpu.device_count()))
     # dim = 0 [30, xxx] -> [10, ...], [10, ...], [10, ...] on 3 GPUs
     net = nn.DataParallel(net)
-
+'''
 
 #################################################   training functions   ###########################################
 
@@ -92,9 +92,9 @@ def train_one_epoch():
         for key in batch_data:
             if type(batch_data[key]) is list:
                 for i in range(len(batch_data[key])):
-                    batch_data[key][i] = batch_data[key][i].cuda()
+                    batch_data[key][i] = batch_data[key][i].cpu()
             else:
-                batch_data[key] = batch_data[key].cuda()
+                batch_data[key] = batch_data[key].cpu()
 
         # Forward pass
         optimizer.zero_grad()
@@ -137,9 +137,9 @@ def evaluate_one_epoch():
         for key in batch_data:
             if type(batch_data[key]) is list:
                 for i in range(len(batch_data[key])):
-                    batch_data[key][i] = batch_data[key][i].cuda()
+                    batch_data[key][i] = batch_data[key][i].cpu()
             else:
-                batch_data[key] = batch_data[key].cuda()
+                batch_data[key] = batch_data[key].cpu()
 
         # Forward pass
         with torch.no_grad():

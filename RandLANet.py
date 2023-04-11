@@ -5,12 +5,14 @@ import pytorch_utils as pt_utils
 from helper_tool import DataProcessing as DP
 import numpy as np
 from sklearn.metrics import confusion_matrix
+from helper_tool import ConfigSemanticKITTI as cfg
 
 
 class Network(nn.Module):
 
-    def __init__(self, config):
+    def __init__(self, config, device):
         super().__init__()
+        self.device = device
         self.config = config
         self.class_weights = DP.get_class_weights('SemanticKITTI')
 
@@ -20,7 +22,7 @@ class Network(nn.Module):
         d_in = 8
         for i in range(self.config.num_layers):
             d_out = self.config.d_out[i]
-            self.dilated_res_blocks.append(Dilated_res_block(d_in, d_out))
+            self.dilated_res_blocks.append(Dilated_res_block(d_in, d_out, self.device))
             d_in = 2 * d_out
 
         d_out = d_in
@@ -45,7 +47,6 @@ class Network(nn.Module):
 
         features = end_points['features']  # Batch*channel*npoints
         features = self.fc0(features)
-
         features = features.unsqueeze(dim=3)  # Batch*channel*npoints*1
 
         # ###########################Encoder############################
@@ -71,7 +72,6 @@ class Network(nn.Module):
             features = f_decoder_i
             f_decoder_list.append(f_decoder_i)
         # ###########################Decoder############################
-
         features = self.fc1(features)
         features = self.fc2(features)
         features = self.dropout(features)
@@ -145,8 +145,7 @@ class IoUCalculator:
         correct = np.sum(pred_valid == labels_valid)
         val_total_correct += correct
         val_total_seen += len(labels_valid)
-
-        conf_matrix = confusion_matrix(labels_valid, pred_valid, np.arange(0, self.cfg.num_classes, 1))
+        conf_matrix = confusion_matrix(labels_valid, pred_valid, labels=np.arange(0, self.cfg.num_classes, 1) )
         self.gt_classes += np.sum(conf_matrix, axis=1)
         self.positive_classes += np.sum(conf_matrix, axis=0)
         self.true_positive_classes += np.diagonal(conf_matrix)
@@ -165,30 +164,39 @@ class IoUCalculator:
 
 
 class Dilated_res_block(nn.Module):
-    def __init__(self, d_in, d_out):
+    def __init__(self, d_in, d_out, device):
         super().__init__()
-
+        self.device = device
+        self.d_out = d_out
         self.mlp1 = pt_utils.Conv2d(d_in, d_out//2, kernel_size=(1,1), bn=True)
-        self.lfa = Building_block(d_out)
+        self.lfa = Building_block(d_out, self.device)
         self.mlp2 = pt_utils.Conv2d(d_out, d_out*2, kernel_size=(1, 1), bn=True, activation=None)
         self.shortcut = pt_utils.Conv2d(d_in, d_out*2, kernel_size=(1,1), bn=True, activation=None)
 
     def forward(self, feature, xyz, neigh_idx):
         f_pc = self.mlp1(feature)  # Batch*channel*npoints*1
         f_pc = self.lfa(xyz, f_pc, neigh_idx)  # Batch*d_out*npoints*1
-        f_pc = self.mlp2(f_pc)
+        #f_pc = self.mlp2(f_pc)
+        in_shape = f_pc.size(1)
+        mlp2 = pt_utils.Conv2d(in_shape, self.d_out*2, kernel_size=(1, 1), bn=True, activation=None)
+        f_pc = mlp2(f_pc)
         shortcut = self.shortcut(feature)
         return F.leaky_relu(f_pc+shortcut, negative_slope=0.2)
 
 
 class Building_block(nn.Module):
-    def __init__(self, d_out):  #  d_in = d_out//2
+    def __init__(self, d_out, device):  #  d_in = d_out//2
         super().__init__()
+        self.d_out = d_out
+        self.device = device
         self.mlp1 = pt_utils.Conv2d(10, d_out//2, kernel_size=(1,1), bn=True)
-        self.att_pooling_1 = Att_pooling(d_out, d_out//2)
+        self.att_pooling_1 = Att_pooling(d_out, d_out//2, self.device)
 
         self.mlp2 = pt_utils.Conv2d(d_out//2, d_out//2, kernel_size=(1, 1), bn=True)
-        self.att_pooling_2 = Att_pooling(d_out, d_out)
+        self.att_pooling_2 = Att_pooling(d_out, d_out, self.device)
+
+        #self.mlp3 = pt_utils.Conv2d(d_out//2, d_out//2, kernel_size=(1, 1), bn=True)
+        #self.att_pooling_3 = Att_pooling(d_out, d_out, self.device)
 
     def forward(self, xyz, feature, neigh_idx):  # feature: Batch*channel*npoints*1
         f_xyz = self.relative_pos_encoding(xyz, neigh_idx)  # batch*npoint*nsamples*10
@@ -198,12 +206,34 @@ class Building_block(nn.Module):
         f_neighbours = f_neighbours.permute((0, 3, 1, 2))  # batch*channel*npoint*nsamples
         f_concat = torch.cat([f_neighbours, f_xyz], dim=1)
         f_pc_agg = self.att_pooling_1(f_concat)  # Batch*channel*npoints*1
+        f_pc_1 = f_pc_agg
+
+        ###################################################################
 
         f_xyz = self.mlp2(f_xyz)
         f_neighbours = self.gather_neighbour(f_pc_agg.squeeze(-1).permute((0, 2, 1)), neigh_idx)  # batch*npoint*nsamples*channel
         f_neighbours = f_neighbours.permute((0, 3, 1, 2))  # batch*channel*npoint*nsamples
         f_concat = torch.cat([f_neighbours, f_xyz], dim=1)
         f_pc_agg = self.att_pooling_2(f_concat)
+        f_pc_2 = f_pc_agg
+
+        ###################################################################
+        f_xyz = self.mlp2(f_xyz)
+        concat = torch.cat([f_pc_1, f_pc_2], dim= 1)
+        f_neighbours = self.gather_neighbour(concat.squeeze(-1).permute((0, 2, 1)), neigh_idx)  # batch*npoint*nsamples*channel
+        f_neighbours = f_neighbours.permute((0, 3, 1, 2)) 
+        f_concat = torch.cat([f_neighbours, f_xyz], dim=1)
+        in_shape = f_concat.size(1)
+        att_pooling3 = Att_pooling(in_shape, self.d_out, self.device)
+        f_pc_agg = att_pooling3(f_concat)
+        f_pc_3 = f_pc_agg
+
+        ###############################################################################################
+
+        concat = torch.cat([f_pc_1, f_pc_2, f_pc_3], dim=1)
+        
+        f_pc_agg = concat
+        
         return f_pc_agg
 
     def relative_pos_encoding(self, xyz, neigh_idx):
@@ -227,20 +257,44 @@ class Building_block(nn.Module):
         return features
 
 
+
 class Att_pooling(nn.Module):
-    def __init__(self, d_in, d_out):
+    def __init__(self, d_in, d_out, device):
         super().__init__()
+        self.device = device
         self.fc = nn.Conv2d(d_in, d_in, (1, 1), bias=False)
         self.mlp = pt_utils.Conv2d(d_in, d_out, kernel_size=(1,1), bn=True)
+        self.d_in = d_in
+        
 
     def forward(self, feature_set):
-
         att_activation = self.fc(feature_set)
         att_scores = F.softmax(att_activation, dim=3)
+
         f_agg = feature_set * att_scores
         f_agg = torch.sum(f_agg, dim=3, keepdim=True)
+        #print(f_agg.shape, 1)
+
         f_agg = self.mlp(f_agg)
-        return f_agg
+
+        #print(f_agg.shape, 2)
+
+        max_agg = feature_set.max(dim=3, keepdim=True)[0]
+
+        concat = torch.cat([f_agg, max_agg], dim=1).to(self.device)
+        #print(concat.shape, 3)
+        B, C, N, _ = concat.size()
+        out_size = f_agg.size(1)
+
+        mlp2 = pt_utils.Conv2d(C, out_size, kernel_size=(1,1), bn=True).to(self.device)
+        final_out = mlp2(concat).to(self.device)
+
+        #mlp = MLP(input_size=2*C*N, hidden_size=1024, output_size=C*N, num_layers=3)
+        #output_tensor = mlp(concat)
+        #print(concat.shape, B, C, N)
+        #print(max_agg.shape, 2, output_tensor.shape)
+    
+        return final_out
 
 
 def compute_loss(end_points, cfg):
@@ -262,8 +316,8 @@ def compute_loss(end_points, cfg):
     valid_labels_init = labels[valid_idx]
 
     # Reduce label values in the range of logit shape
-    reducing_list = torch.range(0, cfg.num_classes).long().cuda()
-    inserted_value = torch.zeros((1,)).long().cuda()
+    reducing_list = torch.arange(0, cfg.num_classes).long().cpu()
+    inserted_value = torch.zeros((1,)).long().cpu()
     for ign_label in cfg.ignored_label_inds:
         reducing_list = torch.cat([reducing_list[:ign_label], inserted_value, reducing_list[ign_label:]], 0)
     valid_labels = torch.gather(reducing_list, 0, valid_labels_init)
@@ -275,10 +329,10 @@ def compute_loss(end_points, cfg):
 
 def get_loss(logits, labels, pre_cal_weights):
     # calculate the weighted cross entropy according to the inverse frequency
-    class_weights = torch.from_numpy(pre_cal_weights).float().cuda()
+    class_weights = torch.from_numpy(pre_cal_weights).float().cpu()
     # one_hot_labels = F.one_hot(labels, self.config.num_classes)
 
-    criterion = nn.CrossEntropyLoss(weight=class_weights, reduction='none')
+    criterion = nn.CrossEntropyLoss(weight=None, reduction='none')
     output_loss = criterion(logits, labels)
     output_loss = output_loss.mean()
     return output_loss
