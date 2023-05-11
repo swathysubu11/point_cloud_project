@@ -6,7 +6,7 @@ from helper_tool import DataProcessing as DP
 import numpy as np
 from sklearn.metrics import confusion_matrix
 from helper_tool import ConfigSemanticKITTI as cfg
-
+from mlp_mixer_pytorch import MLPMixer
 
 class Network(nn.Module):
 
@@ -172,14 +172,16 @@ class Dilated_res_block(nn.Module):
         self.lfa = Building_block(d_out, self.device)
         self.mlp2 = pt_utils.Conv2d(d_out, d_out*2, kernel_size=(1, 1), bn=True, activation=None)
         self.shortcut = pt_utils.Conv2d(d_in, d_out*2, kernel_size=(1,1), bn=True, activation=None)
+        self.linear_mapping = nn.Linear(d_in, d_out*2)
 
     def forward(self, feature, xyz, neigh_idx):
         f_pc = self.mlp1(feature)  # Batch*channel*npoints*1
         f_pc = self.lfa(xyz, f_pc, neigh_idx)  # Batch*d_out*npoints*1
+
         #f_pc = self.mlp2(f_pc)
         in_shape = f_pc.size(1)
         mlp2 = pt_utils.Conv2d(in_shape, self.d_out*2, kernel_size=(1, 1), bn=True, activation=None)
-        f_pc = mlp2(f_pc)
+        f_pc = mlp2(f_pc + self.linear_mapping(feature))
         shortcut = self.shortcut(feature)
         return F.leaky_relu(f_pc+shortcut, negative_slope=0.2)
 
@@ -316,8 +318,8 @@ def compute_loss(end_points, cfg):
     valid_labels_init = labels[valid_idx]
 
     # Reduce label values in the range of logit shape
-    reducing_list = torch.arange(0, cfg.num_classes).long().cpu()
-    inserted_value = torch.zeros((1,)).long().cpu()
+    reducing_list = torch.arange(0, cfg.num_classes).long().cuda()
+    inserted_value = torch.zeros((1,)).long().cuda()
     for ign_label in cfg.ignored_label_inds:
         reducing_list = torch.cat([reducing_list[:ign_label], inserted_value, reducing_list[ign_label:]], 0)
     valid_labels = torch.gather(reducing_list, 0, valid_labels_init)
@@ -329,7 +331,7 @@ def compute_loss(end_points, cfg):
 
 def get_loss(logits, labels, pre_cal_weights):
     # calculate the weighted cross entropy according to the inverse frequency
-    class_weights = torch.from_numpy(pre_cal_weights).float().cpu()
+    class_weights = torch.from_numpy(pre_cal_weights).float().cuda()
     # one_hot_labels = F.one_hot(labels, self.config.num_classes)
 
     criterion = nn.CrossEntropyLoss(weight=None, reduction='none')
